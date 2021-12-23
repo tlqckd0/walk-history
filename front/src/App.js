@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import KakaoMap from './Kakao.map';
-import { getLocation, getDistance ,getLocationAuto } from './calc';
+import { getLocation, getDistance } from './calc';
 
 function App() {
     const [coords, setcoords] = useState({
@@ -10,6 +10,7 @@ function App() {
         longitude: -1,
     });
     const [locationList, setLocationList] = useState([]);
+    const [watchId, setWatchId] = useState(-1);
 
     //수동
     const locationButtenListener = async (e) => {
@@ -19,13 +20,7 @@ function App() {
         setLocationList([...locationList, cur_coords]);
     };
 
-    //자동
-    const locationAutoButtenListener = async (e)=>{
-        e.preventDefault();
-        const id = await getLocationAuto(setcoords)
-    }
-
-    //종료
+    //기본 종료
     const finishRecordButtenListenr = async (e) => {
         e.preventDefault();
         console.log(locationList);
@@ -44,6 +39,67 @@ function App() {
             longitude: -1,
         });
         setLocationList([]);
+    };
+    //자동 레코드
+    const locationAutoButtenListener = (e) => {
+        e.preventDefault();
+        if (navigator.geolocation) {
+            let before_record = null;
+            const newId = navigator.geolocation.watchPosition(
+                (position) => {
+                    let updateFlag = true;
+                    const now = new Date();
+                    const new_record = {
+                        err: 0,
+                        time: now.toLocaleTimeString(),
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    };
+                    //시작
+                    if (before_record !== null) {
+                        const dist = getDistance({
+                            lat1: before_record.latitude,
+                            lon1: before_record.longitude,
+                            lat2: new_record.latitude,
+                            lon2: new_record.longitude,
+                        });
+                        if(dist < 0.05){
+                            updateFlag = false;
+                        }
+                    } 
+
+                    if(updateFlag){
+                        setcoords(new_record);
+                        before_record = new_record;
+                        setLocationList((locationList) => [
+                            ...locationList,
+                            new_record,
+                        ]);
+                    }
+                },
+                (err) => {
+                    console.log(err.message);
+                },
+                { enableHighAccuracy: false, maximumAge: 10000, timeout: 5000 }
+            );
+            setWatchId(newId);
+        }
+    };
+    //자동 종료
+    const finishAutoRecordButtonListener = (e) => {
+        e.preventDefault();
+        console.log(locationList);
+        if (watchId !== -1) {
+            navigator.geolocation.clearWatch(watchId);
+            setWatchId(-1);
+            setcoords({
+                err: -3,
+                time: null,
+                latitude: -1,
+                longitude: -1,
+            });
+            setLocationList([]);
+        }
     };
 
     const locationToString = (coord, idx) => (
@@ -72,22 +128,29 @@ function App() {
                     locationToString(coords, 'Current')
                 )}
                 <button
-                    style={{ width: '100px', height: '50px', margin: '20px' }}
-                    onClick={locationAutoButtenListener}
-                >
-                    AutoStart
-                </button>
-                <button
-                    style={{ width: '100px', height: '50px', margin: '20px' }}
+                    style={{ width: '150px', height: '50px', margin: '10px' }}
                     onClick={locationButtenListener}
                 >
                     UPDATE
                 </button>
                 <button
-                    style={{ width: '100px', height: '50px', margin: '20px' }}
+                    style={{ width: '150px', height: '50px', margin: '10px' }}
                     onClick={finishRecordButtenListenr}
                 >
                     FINISH
+                </button>
+                <br />
+                <button
+                    style={{ width: '150px', height: '50px', margin: '10px' }}
+                    onClick={locationAutoButtenListener}
+                >
+                    AUTO RECORD
+                </button>
+                <button
+                    style={{ width: '150px', height: '50px', margin: '10px' }}
+                    onClick={finishAutoRecordButtonListener}
+                >
+                    AUTO STOP
                 </button>
                 <br />
                 show location List ..

@@ -25,42 +25,16 @@ export function getLocation() {
         }
     });
 }
-//1230운명의데스티니
-export function getLocationAuto(setcoords) {
-    return new Promise((resolve, reject) => {
-        if (navigator.geolocation) {
-            const id = navigator.geolocation.watchPosition(
-                (position) => {
-                    console.log(position);
-                    setcoords({
-                        err: 0,
-                        time: new Date().toLocaleTimeString(),
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                    });
-                },
-                (err) => {
-                    reject(-1);
-                },
-                { enableHighAccuracy: true, maximumAge: 2000, timeout: 5000 }
-            );
-
-            resolve(id);
-        } else {
-            reject(-2);
-        }
-    });
-}
 
 export function getDistance({ lat1, lon1, lat2, lon2 }) {
     if (lat1 === lat2 && lon1 === lon2) {
         return 0;
     } else {
-        var radlat1 = (Math.PI * lat1) / 180;
-        var radlat2 = (Math.PI * lat2) / 180;
-        var theta = lon1 - lon2;
-        var radtheta = (Math.PI * theta) / 180;
-        var dist =
+        let radlat1 = (Math.PI * lat1) / 180;
+        let radlat2 = (Math.PI * lat2) / 180;
+        let theta = lon1 - lon2;
+        let radtheta = (Math.PI * theta) / 180;
+        let dist =
             Math.sin(radlat1) * Math.sin(radlat2) +
             Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
         if (dist > 1) {
@@ -70,6 +44,7 @@ export function getDistance({ lat1, lon1, lat2, lon2 }) {
         dist = (dist * 180) / Math.PI;
         dist = dist * 60 * 1.1515;
         dist = dist * 1.609344;
+        //KM로 변환
         return dist;
     }
 }
