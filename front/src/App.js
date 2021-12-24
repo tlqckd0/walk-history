@@ -28,7 +28,6 @@ function App() {
     const [recording, setRecording] = useState(false);
     const [username, setUsername] = useState('');
     const [code, setCode] = useState('');
-    const [counter, setCounter] = useState(0);
 
     const usernameInputHandler = (e) => {
         e.preventDefault();
@@ -78,7 +77,6 @@ function App() {
                     let updateFlag = true;
                     const now = new Date();
                     const new_record = {
-                        counter: counter++,
                         err: 0,
                         time: now.toLocaleTimeString(),
                         latitude: position.coords.latitude,
@@ -105,10 +103,11 @@ function App() {
                             ...locationList,
                             new_record,
                         ]);
+                        new_record.counter = counter++;
                         const res = await axios.post('/api/coords', {
                             username,
                             code,
-                            record:new_record,
+                            record: new_record,
                         });
                         console.log(res.data);
                     }
@@ -123,7 +122,7 @@ function App() {
         }
     };
     //자동 종료
-    const finishAutoRecordButtonListener = (e) => {
+    const finishAutoRecordButtonListener = async (e) => {
         e.preventDefault();
         if (watchId !== -1) {
             navigator.geolocation.clearWatch(watchId);
@@ -131,7 +130,14 @@ function App() {
             const finDist = getFinDist(locationList);
             if (locationList.length >= 3 && finDist < 0.1) {
                 //결과 전송
+                const res = await axios.post('/api/coords/finish', {
+                    username,
+                    code,
+                });
+            } else {
+                alert('조건이 맞지않아 종료할 수 없습니다.');
             }
+
             setcoords({
                 err: -3,
                 time: null,
