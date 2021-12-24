@@ -22,7 +22,7 @@ const line = (from, to) => {
     return ret;
 };
 
-const KakaoMap = ({ coords }) => {
+const KakaoMap = ({ coords ,recording}) => {
     const [walkpolylineList, setWalkpolylineList] = useState([]);
     const [beforeCoord, setBeforeCoord] = useState(null);
     const [map,setMap] = useState(null);
@@ -52,8 +52,15 @@ const KakaoMap = ({ coords }) => {
             }
             setBeforeCoord(coords);
         }
-
     }, [coords]);
+
+    //지도 초기화
+    useEffect(()=>{
+        walkpolylineList.forEach(polyline=>{
+            polyline.setMap(null);
+        })
+    },[recording])
+    
     return (
         <div
             style={{

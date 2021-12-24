@@ -8,6 +8,10 @@
 # testing
 /coverage
 
+#환경변수
+.env
+
+
 # production
 /build
 
