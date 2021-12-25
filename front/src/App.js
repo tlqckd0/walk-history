@@ -128,14 +128,15 @@ function App() {
             navigator.geolocation.clearWatch(watchId);
             setWatchId(-1);
             const finDist = getFinDist(locationList);
+            const res = await axios.post('/api/coords/finish', {
+                username,
+                code,
+            });
             if (locationList.length >= 3 && finDist < 0.1) {
                 //결과 전송
-                const res = await axios.post('/api/coords/finish', {
-                    username,
-                    code,
-                });
+                
             } else {
-                alert('조건이 맞지않아 종료할 수 없습니다.');
+                //alert('조건이 맞지않아 종료할 수 없습니다.');
             }
 
             setcoords({
@@ -167,7 +168,7 @@ function App() {
             </div>
             <br />
             <span>
-                Show current location ..
+                Show current location ▶
                 <InputForm
                     username={username}
                     code={code}

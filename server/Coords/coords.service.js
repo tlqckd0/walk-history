@@ -10,15 +10,14 @@ client.on('ready', () => {
 });
 const saveRecord =  ({ code, record }) => {
     return new Promise(async(resolve, reject)=>{
-        await client.hSet(
-            `${code}`,
-            `${record.counter}`,
-            JSON.stringify({
-                time: record.time,
-                latitude: record.latitude,
-                longitude: record.longitude,
-            })
-        );
+        
+        const now = new Date();
+        await client.lPush(`${code}`,JSON.stringify({
+            counter:record.counter,
+            time: now.toLocaleTimeString(),
+            latitude: record.latitude,
+            longitude: record.longitude,
+        }))
         resolve(true);
     }).then(res=>{
         return res;    
@@ -27,17 +26,10 @@ const saveRecord =  ({ code, record }) => {
     });
 };
 
-const finishRecording =  ({ code }) => {
-    return new Promise(async(resolve, reject)=>{
-        const records = await client.hGetAll(`${code}`);
-        //DB에 저장하자.
-        console.log(records);
-        resolve(true);
-    }).then(res=>{  
-        return true;
-    }).catch(e=>{
-        return false;
-    })
+const finishRecording = async ({ code }) => {    
+    const res = await client.lRange(`${code}`,0,-1);
+    console.log(JSON.parse(res));
+    return true;
 };
 
 module.exports = {

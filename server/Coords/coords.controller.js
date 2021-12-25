@@ -27,13 +27,13 @@ router.post('/', async (req, res, next) => {
     });
 });
 
-router.post('/finish', async (req, res) => {
+router.post('/finish', async (req, res,next ) => {
     const { username, code } = req.body;
     if (userInfo[code] !== username) {
         return next(new Error('authentication Error'));
     }
     console.log('finish');
-    const result = await CoordsService.finishRecording(code);
+    const result = await CoordsService.finishRecording({code});
     //Redis에 저장된거 다 불러오고
     //삭제후 DB에 저장
     res.status(201).json({
