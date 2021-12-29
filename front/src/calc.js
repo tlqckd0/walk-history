@@ -48,3 +48,15 @@ export function getDistance({ lat1, lon1, lat2, lon2 }) {
         return dist;
     }
 }
+
+export function getFinDist(locationList) {
+    const lastIdx = locationList.length - 1;
+    //마지막이랑 처음이랑 길이차이가 많이나면 안됨.100meter만 허용
+    const finDist = getDistance({
+        lat1: locationList[0].latitude,
+        lon1: locationList[0].longitude,
+        lat2: locationList[lastIdx].latitude,
+        lon2: locationList[lastIdx].longitude,
+    });
+    return finDist;
+}

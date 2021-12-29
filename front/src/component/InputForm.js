@@ -4,10 +4,12 @@ const InputForm = ({
     username,
     code,
     usernameInputHandler,
-    codeInputHandler,
+    usercodeInputHandler,
+    block
 }) => {
     return (
-        <div>
+        <div 
+        style={{border:'solid 1px black', margin:'20px'}}>
             <table>
                 <tbody>
                     <tr>
@@ -16,11 +18,12 @@ const InputForm = ({
                         </td>
                         <td>
                             <input
-                                onChange={codeInputHandler}
+                                onChange={usercodeInputHandler}
                                 id="code"
                                 name="code"
                                 type="text"
                                 value={code}
+                                disabled={block}
                             />
                         </td>
                     </tr>
@@ -35,6 +38,7 @@ const InputForm = ({
                                 name="username"
                                 type="text"
                                 value={username}
+                                disabled={block}
                             />
                         </td>
                     </tr>

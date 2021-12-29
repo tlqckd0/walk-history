@@ -1,43 +1,81 @@
 const express = require('express');
-const CoordsService = require('./coords.service');
+const {
+    startRecord,
+    saveRecord,
+    finishRecording,
+    finishWithError,
+    resetRecord
+} = require('./coords.service');
 
-const userInfo = {
-    1: 'user1',
-    2: 'user2',
-};
 const router = express.Router();
 
-router.get('/:username', (req, res) => {});
+router.get('/:usercode/:recordCode', (req, res) => {});
+
+router.post('/start', async (req, res, next) => {
+    const { usercode, username } = req.body;
+
+    try {
+        const data = await startRecord({ usercode, username });
+        res.status(201).json({
+            success: data.success,
+            recordcode: data.recordcode,
+        });
+    } catch (err) {
+        next(err);
+    }
+});
 
 router.post('/', async (req, res, next) => {
     /**
      * {username:
      * code:
-     *  record:{err,time,latitude,longitude}}
+     *  record:{counter,latitude,longitude}}
      */
-    const { username, code, record } = req.body;
-    if (userInfo[code] !== username) {
-        return next(new Error('authentication Error'));
+    const { usercode, record } = req.body;
+    try {
+        const result = await saveRecord({ usercode, record });
+        res.status(201).json({ success: result });
+    } catch (err) {
+        next(err);
     }
-    const result = await CoordsService.saveRecord({ code, record });
-
-    //Redis에 저장
-    res.status(201).json({
-        success: result,
-    });
 });
 
-router.post('/finish', async (req, res,next ) => {
-    const { username, code } = req.body;
-    if (userInfo[code] !== username) {
-        return next(new Error('authentication Error'));
+//종료
+router.post('/finish', async (req, res, next) => {
+    const { err, usercode, recordcode } = req.body;
+    try {
+        let success = null;
+        let message = '';
+
+        if (err) {
+            success = await finishWithError({ usercode, recordcode });
+            message = 'error process OK';
+        } else {
+            success = await finishRecording({ usercode, recordcode });
+            message = 'finish record';
+        }
+
+        res.status(201).json({
+            success,
+            message,
+        });
+    } catch (err) {
+        next(err);
     }
-    console.log('finish');
-    const result = await CoordsService.finishRecording({code});
-    //Redis에 저장된거 다 불러오고
-    //삭제후 DB에 저장
-    res.status(201).json({
-        success: result,
-    });
 });
+
+        
+//재시작
+router.post('/reset', async (req, res, next) => {
+    const {usercode} = req.body;
+    try{
+        const success = await resetRecord({usercode});
+        res.json({
+            success
+        })
+    }catch(err){
+        next(err);
+    }
+});
+
 module.exports = router;
