@@ -5,7 +5,7 @@ const {
     finishRecording,
     finishWithError,
     resetRecord
-} = require('./coords.service');
+} = require('./record.service');
 
 const router = express.Router();
 

@@ -6,7 +6,7 @@ client.on('error', (err) => {
     console.error(err);
 });
 client.on('ready', () => {
-    console.log('client is ready');
+    console.log('redis client is ready');
 });
 
 const saveCurrentRecord = async ({ usercode, record }) => {

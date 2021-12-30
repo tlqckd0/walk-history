@@ -1,4 +1,4 @@
-module.exports = class CoordsRepository {
+module.exports = class RecordRepository {
     //0.기록중, 1. 기록완료, 2. 기록애러
 
     #pool;
