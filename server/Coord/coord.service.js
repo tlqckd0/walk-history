@@ -13,6 +13,15 @@ const CoordStringToJson = ({ coords }) => {
         });
 };
 
+const findCoordList = async({recordcode})=>{
+    try{
+        const coordsList = await coordRepository.findCoordsWithRecordcode({recordcode});
+        return coordsList;
+    }catch(err){
+        throw err;
+    }
+}
+
 const saveCoordsToLine = async ({ recordcode, coords }) => {
     try {
         const lineSize = coords.length;
@@ -23,14 +32,16 @@ const saveCoordsToLine = async ({ recordcode, coords }) => {
                 counter: json_coords[i].counter,
                 from_record: json_coords[i],
                 to_record: json_coords[i + 1],
+                time: json_coords[i].time,
             });
         }
         //마지막이랑 시작점 연결
         await coordRepository.createCoord({
             recordcode,
-            counter: 0,
+            counter: lineSize,
             from_record: json_coords[lineSize - 1],
             to_record: json_coords[0],
+            time: json_coords[lineSize - 1].time,
         });
     } catch (err) {
         throw err;
@@ -38,5 +49,6 @@ const saveCoordsToLine = async ({ recordcode, coords }) => {
 };
 
 module.exports = {
+    findCoordList,
     saveCoordsToLine,
 };

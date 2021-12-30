@@ -3,14 +3,15 @@ module.exports = class RecordRepository {
 
     #pool;
 
-    #CreateRecordSQL = `INSERT INTO RECORD (USERCODE, STARTTIME, STATUS) VALUES("?",sysdate(),0)`;
-
-    #GetCurrentRecordCodeSQL =
-        'SELECT MAX(RECORDCODE) as recordcode from RECORD where USERCODE = ? and STATUS = ?';
-
+    #CreateRecordSQL = `INSERT INTO RECORD (USERCODE, STARTTIME, STATUS) VALUES(?,sysdate(),0)`;
+    #FindCurrentRecordCodeSQL =
+        'SELECT MAX(RECORDCODE) as recordcode FROM RECORD where USERCODE = ? and STATUS = ?';
     #FinishRecordSQL =
         'UPDATE RECORD set STATUS = ?, ENDTIME = sysdate() where RECORDCODE = ?';
+    #FindRecordByUsername =
+        'SELECT recordcode, starttime, endtime FROM record r WHERE exists (select 1 from user u where u.usercode = r.usercode and u.username = ?) and r.status = 1';
 
+        
     constructor(pool) {
         this.#pool = pool;
     }
@@ -23,23 +24,37 @@ module.exports = class RecordRepository {
             await connection.query(this.#CreateRecordSQL, [usercode]);
             await connection.release();
         } catch (err) {
-            throw new Error(err.message);
+            throw err
         }
     };
 
-    getCurrentRecordWithStatus = async ({ usercode, status }) => {
+    findRecordByUserName = async({username})=>{
+        try{
+            const connection = await this.#pool.getConnection(
+                async (conn) => conn
+            );
+            const [rows] = await connection.query(this.#FindRecordByUsername,[username]);
+            await connection.release();
+            return rows;
+        }catch(err){
+            throw err;
+        }
+    }
+
+
+    findCurrentRecordByStatus = async ({ usercode, status }) => {
         try {
             const connection = await this.#pool.getConnection(
                 async (conn) => conn
             );
             const [rows] = await connection.query(
-                this.#GetCurrentRecordCodeSQL,
+                this.#FindCurrentRecordCodeSQL,
                 [usercode, status]
             );
             await connection.release();
             return rows[0];
         } catch (err) {
-            throw new Error(err.message);
+            throw err
         }
     };
 
@@ -51,7 +66,7 @@ module.exports = class RecordRepository {
             await connection.query(this.#FinishRecordSQL, [status, recordcode]);
             await connection.release();
         } catch (err) {
-            throw new Error(err.message);
+            throw err
         }
     };
 };

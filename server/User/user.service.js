@@ -1,18 +1,28 @@
-const {userRepository} = require('../repository/index');
+const { userRepository } = require('../repository/index');
 
-const getUserInfo = async({usercode, username})=>{
-    try{
-        const userData = await userRepository.findUser({usercode});
+const findAllUserName = async () => {
+    try {
+        const userNameList = await userRepository.findAllUser();
+        return userNameList;
+    } catch (err) {
+        throw err;
+    }
+};
+
+const getUserInfo = async ({ usercode, username }) => {
+    try {
+        const userData = await userRepository.findUser({ usercode });
         if (!userData || userData.username !== username) {
             throw new Error('No UserData');
         }
 
         return userData;
-    }catch(err){
-        throw new Error(err.message);
+    } catch (err) {
+        throw err;
     }
-}
+};
 
 module.exports = {
-    getUserInfo
-}
+    findAllUserName,
+    getUserInfo,
+};

@@ -7,13 +7,10 @@ const {
     getRecord,
 } = require('../redis/coords.redis');
 
-const startRecord = async ({ usercode, username }) => {
+const startRecord = async ({ usercode }) => {
     try {
         const userData = await userRepository.findUser({ usercode });
         // 1. 유저 확인
-        if (!userData || userData.username !== username) {
-            throw new Error('No UserData');
-        }
         if (userData.status !== 0) {
             throw new Error('User Status is Not idle');
         }
@@ -22,11 +19,12 @@ const startRecord = async ({ usercode, username }) => {
         await recordRepository.createRecord({ usercode });
 
         // 3. 번호 받아오기
-        const { recordcode } =
-            await recordRepository.getCurrentRecordWithStatus({
+        const { recordcode } = await recordRepository.findCurrentRecordByStatus(
+            {
                 usercode,
                 status: 0,
-            });
+            }
+        );
         await userRepository.updateUserStatus({ usercode, status: 1 });
         return {
             success: true,
@@ -34,6 +32,17 @@ const startRecord = async ({ usercode, username }) => {
         };
     } catch (err) {
         throw new Error(err.message);
+    }
+};
+
+const recordList = async ({ username }) => {
+    try {
+        const recordData = await recordRepository.findRecordByUserName({
+            username,
+        });
+        return recordData;
+    } catch (err) {
+        throw err;
     }
 };
 
@@ -49,15 +58,15 @@ const saveRecord = async ({ usercode, record }) => {
 
 const finishRecording = async ({ usercode, recordcode }) => {
     try {
+        //1. 처리 시작
         await userRepository.updateUserStatus({ usercode, status: 2 });
-        //1. 레코드 상태 변경
-        await recordRepository.finishRecord({ recordcode, status: 1 });
         //2. redis에서 데이터 가지고오고 redis는 삭제
         const coords = await getRecord({ usercode });
         await deleteRecord({ usercode });
         //3. 점 데이터를 선으로 변환해서 저장.
         await coordsService.saveCoordsToLine({ recordcode, coords });
-        //4. 종료
+        //4. 종료 상태 변경 (기록성공)
+        await recordRepository.finishRecord({ recordcode, status: 1 });
         await userRepository.updateUserStatus({ usercode, status: 0 });
         return true;
     } catch (err) {
@@ -67,13 +76,12 @@ const finishRecording = async ({ usercode, recordcode }) => {
 
 const finishWithError = async ({ usercode, recordcode }) => {
     try {
-        //0. 처리시작
+        //1. 처리시작
         await userRepository.updateUserStatus({ usercode, status: 2 });
-        //1. 레코드 상태 변경
-        await recordRepository.finishRecord({ recordcode, status: 2 });
         //2. redis삭제
         await deleteRecord({ usercode });
-        //3. 종료
+        //3. 종료 상태 변경(기록실패)
+        await recordRepository.finishRecord({ recordcode, status: 2 });
         await userRepository.updateUserStatus({ usercode, status: 0 });
         return true;
     } catch (err) {
@@ -105,6 +113,7 @@ const resetRecord = async ({ usercode }) => {
 
 module.exports = {
     startRecord,
+    recordList,
     saveRecord,
     finishRecording,
     finishWithError,

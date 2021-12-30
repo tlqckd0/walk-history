@@ -14,7 +14,7 @@ const InputForm = ({
                 <tbody>
                     <tr>
                         <td>
-                            <label htmlFor="code">code</label>
+                            <label htmlFor="code">usercode</label>
                         </td>
                         <td>
                             <input

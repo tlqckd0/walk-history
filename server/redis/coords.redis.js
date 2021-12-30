@@ -10,12 +10,14 @@ client.on('ready', () => {
 });
 
 const saveCurrentRecord = async ({ usercode, record }) => {
-    await client.lPush(
+    const now = new Date();
+    await client.rPush(
         `${usercode}`,
         JSON.stringify({
             counter: record.counter,
             latitude: record.latitude,
             longitude: record.longitude,
+            time: now.toLocaleTimeString('it-IT'),
         })
     );
 };

@@ -29,6 +29,7 @@ CREATE TABLE `walkgps`.`cooord_line` (
   `from_longitude` FLOAT NOT NULL,
   `to_latitude` FLOAT NOT NULL,
   `to_longitude` FLOAT NOT NULL,
+  `time` VARCHAR(20) NULL,
   PRIMARY KEY (`recordcode`, `counter`),
   CONSTRAINT `recode_fk`
     FOREIGN KEY (`recordcode`)
