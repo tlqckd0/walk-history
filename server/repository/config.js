@@ -2,7 +2,7 @@ module.exports = {
     host: 'localhost',
     user: 'root',
     database: 'walkgps',
-    password: process.env.MYSQL_PASSWORD || "tlqckdsus0-",
+    password: process.env.MYSQL_PASSWORD,
 
     waitForConnections: true,
     connectionLimit: 10,
