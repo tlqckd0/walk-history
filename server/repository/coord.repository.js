@@ -4,7 +4,7 @@ module.exports = class CoordRepository {
     #CreateCoordLineSQL =
         'INSERT INTO COORD_LINE (recordcode,counter, from_latitude, from_longitude,to_latitude,to_longitude,time) VALUES(?,?,?,?,?,?,?)';
     #FindCoordLineWithRecordCodeSQL =
-        'SELECT * FROM COORD_LINE where RECORDCODE = ?';
+        'SELECT counter, from_latitude,from_longitude,to_latitude,to_longitude,time FROM COORD_LINE where RECORDCODE = ?';
     #DeleteCoordLineWithRecordCodeSQL =
         'DELETE FROM COORD_LINE where RECORDCODE = ?';
     constructor(pool) {

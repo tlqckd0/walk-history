@@ -38,7 +38,7 @@ const saveCoordsToLine = async ({ recordcode, coords }) => {
         //마지막이랑 시작점 연결
         await coordRepository.createCoord({
             recordcode,
-            counter: lineSize,
+            counter: lineSize-1,
             from_record: json_coords[lineSize - 1],
             to_record: json_coords[0],
             time: json_coords[lineSize - 1].time,

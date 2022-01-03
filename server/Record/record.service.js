@@ -35,12 +35,12 @@ const startRecord = async ({ usercode }) => {
     }
 };
 
-const recordList = async ({ username }) => {
+const findUserRecordList = async ({ username }) => {
     try {
-        const recordData = await recordRepository.findRecordByUserName({
+        const recordList = await recordRepository.findRecordByUserName({
             username,
         });
-        return recordData;
+        return recordList;
     } catch (err) {
         throw err;
     }
@@ -113,7 +113,7 @@ const resetRecord = async ({ usercode }) => {
 
 module.exports = {
     startRecord,
-    recordList,
+    findUserRecordList,
     saveRecord,
     finishRecording,
     finishWithError,

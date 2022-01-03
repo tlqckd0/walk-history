@@ -1,12 +1,5 @@
 const express = require('express');
-const {
-    startRecord,
-    saveRecord,
-    recordList,
-    finishRecording,
-    finishWithError,
-    resetRecord,
-} = require('./record.service');
+const recordService = require('./record.service');
 
 const router = express.Router();
 
@@ -14,7 +7,7 @@ const router = express.Router();
 router.get('/:username', async (req, res, next) => {
     try {
         const { username } = req.params;
-        const result = await recordList({ username });
+        const result = await recordService.findUserRecordList({ username });
         res.json({
             success: true,
             result,
@@ -24,13 +17,11 @@ router.get('/:username', async (req, res, next) => {
     }
 });
 
-router.get('/:usercode/:recordCode', (req, res) => {});
-
 router.post('/start', async (req, res, next) => {
     const { usercode } = req.body;
 
     try {
-        const data = await startRecord({ usercode });
+        const data = await recordService.startRecord({ usercode });
         res.status(201).json({
             success: data.success,
             recordcode: data.recordcode,
@@ -49,7 +40,7 @@ router.post('/', async (req, res, next) => {
      */
     const { usercode, record } = req.body;
     try {
-        const result = await saveRecord({ usercode, record });
+        const result = await recordService.saveRecord({ usercode, record });
         res.status(201).json({ success: result });
     } catch (err) {
         console.log(err.message);
@@ -65,11 +56,11 @@ router.post('/finish', async (req, res, next) => {
         let message = '';
         if (finish === 1) {
             //정상적인 종료
-            success = await finishRecording({ usercode, recordcode });
+            success = await recordService.finishRecording({ usercode, recordcode });
             message = 'finish record';
         } else {
             //종료조건을 못마춤
-            success = await finishWithError({ usercode, recordcode });
+            success = await recordService.finishWithError({ usercode, recordcode });
             message = 'error process OK';
         }
 
@@ -87,7 +78,7 @@ router.post('/finish', async (req, res, next) => {
 router.post('/reset', async (req, res, next) => {
     const { usercode } = req.body;
     try {
-        const success = await resetRecord({ usercode });
+        const success = await recordService.resetRecord({ usercode });
         res.json({
             success,
         });
