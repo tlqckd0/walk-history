@@ -157,7 +157,7 @@ const RecordPage = () => {
                     usercode,
                     recordcode,
                 });
-                if(finish === 0){
+                if (finish === 0) {
                     alert(
                         '정상적인 종료 조건이 아닙니다.(3곳 이상 방문, 시작점, 마지막점 200m이내)'
                     );
@@ -165,6 +165,8 @@ const RecordPage = () => {
                 if (data.success === false) {
                     throw new Error(data.message);
                 }
+                setLocationList([]);
+                setRecordcode(-1);
                 setReadyRecord(true);
                 setRecording(false);
             }
@@ -175,8 +177,7 @@ const RecordPage = () => {
 
     const locationToString = (coord, idx) => (
         <div key={idx}>
-            ({idx}) Time : {coord.time} & latitude : {coord.latitude} &
-            longitude : {coord.longitude}{' '}
+            latitude : {coord.latitude} & longitude : {coord.longitude}{' '}
         </div>
     );
 
