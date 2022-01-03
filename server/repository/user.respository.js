@@ -1,6 +1,6 @@
 module.exports = class UserRepository {
     #pool;
-    #FindAllNameUserSQL = 'SELECT USERNAME FROM USER';
+    #FindAllNameUserSQL = 'SELECT username FROM USER';
     #FindUserSQL = 'SELECT * from USER where usercode = ?';
     #UpdateUserStatusSQL = 'UPDATE USER set status = ? where usercode = ?';
 
