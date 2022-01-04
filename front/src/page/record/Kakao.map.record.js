@@ -22,7 +22,7 @@ const line = (from, to) => {
     return ret;
 };
 
-const KakaoMap = ({ coords ,recording}) => {
+const KakaoMapRecord = ({ coords ,recording}) => {
     const [walkpolylineList, setWalkpolylineList] = useState([]);
     const [beforeCoord, setBeforeCoord] = useState(null);
     const [map,setMap] = useState(null);
@@ -30,7 +30,7 @@ const KakaoMap = ({ coords ,recording}) => {
     //처음 지도 그리기
     useEffect(()=>{
         const container = document.getElementById('map');
-        const options = { center: new kakao.maps.LatLng(33.4507, 126.5706) };
+        const options = { center: new kakao.maps.LatLng(37.495328, 126.4878233) };
         const kakaoMap = new kakao.maps.Map(container, options);
         setMap(kakaoMap);
     },[])
@@ -75,4 +75,4 @@ const KakaoMap = ({ coords ,recording}) => {
     );
 };
 
-export default KakaoMap;
+export default KakaoMapRecord;

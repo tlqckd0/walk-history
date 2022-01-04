@@ -1,11 +1,24 @@
 const { userRepository, recordRepository } = require('../repository/index');
 const coordsService = require('../Coord/coord.service');
-
+const areaService = require('../Area/area.service');
 const {
     deleteRecord,
     saveCurrentRecord,
     getRecord,
 } = require('../redis/coords.redis');
+
+function coordStringToJson({ coords }) {
+    return new Promise((resolve, reject) => {
+        const json_coords = coords.map((value) => JSON.parse(value));
+        resolve(json_coords);
+    })
+        .then((res) => {
+            return res;
+        })
+        .catch((err) => {
+            throw err;
+        });
+}
 
 const startRecord = async ({ usercode }) => {
     try {
@@ -60,11 +73,21 @@ const finishRecording = async ({ usercode, recordcode }) => {
     try {
         //1. 처리 시작
         await userRepository.updateUserStatus({ usercode, status: 2 });
+
         //2. redis에서 데이터 가지고오고 redis는 삭제
         const coords = await getRecord({ usercode });
         await deleteRecord({ usercode });
-        //3. 점 데이터를 선으로 변환해서 저장.
-        await coordsService.saveCoordsToLine({ recordcode, coords });
+        const json_coords = await coordStringToJson({ coords });
+
+        //3-1. 점 데이터를 선으로 변환해서 저장.
+        await coordsService.saveCoordsToLine({
+            recordcode,
+            coords: json_coords,
+        });
+
+        //3-2. 기록한 데이터 영역 계산
+        await areaService.areaProcess({ coords: json_coords });
+
         //4. 종료 상태 변경 (기록성공)
         await recordRepository.finishRecord({ recordcode, status: 1 });
         await userRepository.updateUserStatus({ usercode, status: 0 });

@@ -25,23 +25,22 @@ const findCoordList = async({recordcode})=>{
 const saveCoordsToLine = async ({ recordcode, coords }) => {
     try {
         const lineSize = coords.length;
-        const json_coords = await CoordStringToJson({ coords });
         for (let i = 0; i < lineSize - 1; i++) {
             await coordRepository.createCoord({
                 recordcode,
-                counter: json_coords[i].counter,
-                from_record: json_coords[i],
-                to_record: json_coords[i + 1],
-                time: json_coords[i].time,
+                counter: coords[i].counter,
+                from_record: coords[i],
+                to_record: coords[i + 1],
+                time: coords[i].time,
             });
         }
         //마지막이랑 시작점 연결
         await coordRepository.createCoord({
             recordcode,
-            counter: lineSize-1,
-            from_record: json_coords[lineSize - 1],
-            to_record: json_coords[0],
-            time: json_coords[lineSize - 1].time,
+            counter: coords[lineSize - 1].counter,
+            from_record: coords[lineSize - 1],
+            to_record: coords[0],
+            time: coords[lineSize - 1].time,
         });
     } catch (err) {
         throw err;

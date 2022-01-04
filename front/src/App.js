@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import AreaPage from './page/area/Area.Page';
 
 import Header from './page/Header';
 import RecordPage from './page/record/Record.Page';
@@ -32,7 +33,7 @@ function App() {
             ) : mapType === 1 ? (
                 <ShowPage/>
             ) : (
-                <div>AreaPage</div>
+                <AreaPage/>
             )}
         </div>
     );

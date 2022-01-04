@@ -38,3 +38,22 @@ CREATE TABLE `walkgps`.`cooord_line` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE `walkgps`.`area` (
+  `areacode` INT NOT NULL AUTO_INCREMENT,
+  `latitude` FLOAT NOT NULL,
+  `longitude` FLOAT NOT NULL,
+  `description` VARCHAR(45) NULL,
+  `size` INT NOT NULL,
+  PRIMARY KEY (`areacode`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;
+
+CREATE TABLE `walkgps`.`userarea` (
+  `areacode` INT NOT NULL,
+  `usercode` INT NOT NULL,
+  `lat_idx` INT NOT NULL,
+  `counter` VARCHAR(100) NULL,
+  PRIMARY KEY (`areacode`, `lat_idx`, `usercode`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8;

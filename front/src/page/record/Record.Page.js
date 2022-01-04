@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import KakaoMap from './Kakao.map.record';
 import { getDistance, getFinDist } from '../util/calc';
 import InputForm from './InputForm';
 import axios from 'axios';
 import CButton from '../../component/CButton';
+import KakaoMapRecord from './Kakao.map.record';
 
 const RecordPage = () => {
     const [coords, setcoords] = useState({
@@ -188,7 +188,7 @@ const RecordPage = () => {
     return (
         <span>
             <div>
-                <KakaoMap coords={coords} recording={recording} />
+                <KakaoMapRecord coords={coords} recording={recording} />
             </div>
             <InputForm
                 username={username}
