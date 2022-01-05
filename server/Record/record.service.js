@@ -1,6 +1,6 @@
 const { userRepository, recordRepository } = require('../repository/index');
 const coordsService = require('../Coord/coord.service');
-const areaService = require('../Area/area.service');
+//const areaService = require('../Area/area.service');
 const {
     deleteRecord,
     saveCurrentRecord,
@@ -84,9 +84,6 @@ const finishRecording = async ({ usercode, recordcode }) => {
             recordcode,
             coords: json_coords,
         });
-
-        //3-2. 기록한 데이터 영역 계산
-        await areaService.areaProcess({ coords: json_coords });
 
         //4. 종료 상태 변경 (기록성공)
         await recordRepository.finishRecord({ recordcode, status: 1 });

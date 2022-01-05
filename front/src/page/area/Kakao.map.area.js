@@ -1,33 +1,16 @@
 /* global kakao */
 import React, { useEffect, useState } from 'react';
+import CButton from '../../component/CButton';
 
 const { kakao } = window;
 
-const line = (from, to) => {
-    let ret = null;
-    if (from.err === 0 && to.err === 0) {
-        const path = [
-            new kakao.maps.LatLng(from.latitude, from.longitude),
-            new kakao.maps.LatLng(to.latitude, to.longitude),
-        ];
-        ret = new kakao.maps.Polyline({
-            path,
-            strokeWeight: 3,
-            strokeColor: '#db4040',
-            strokeOpacity: 1,
-            strokeStyle: 'solid',
-        });
-        return ret;
-    }
-    return ret;
-};
+function makeTileList({ center, gap, color, size }) {
 
-function makeTileList({ center, gap, color }) {
     return new Promise((resolve, reject) => {
         const ret = [];
         let toggle = false;
-        for (let i = -10; i <= 10; i++) {
-            for (let j = -10; j <= 10; j++) {
+        for (let i = -size; i <= size; i++) {
+            for (let j = -size; j <= size; j++) {
                 const sw = new kakao.maps.LatLng(
                     center[0] + i * gap,
                     center[1] + j * gap
@@ -60,12 +43,21 @@ function makeTileList({ center, gap, color }) {
             return [];
         });
 }
+function getBoundInfo({ bound }) {
+    const ret = {
+        sw_lat: bound.getSouthWest().La.toFixed(4),
+        sw_lon: bound.getSouthWest().Ma.toFixed(4),
+        ne_lat: bound.getNorthEast().La.toFixed(4),
+        ne_lon: bound.getNorthEast().Ma.toFixed(4),
+    };
 
-const KakaoMapArea = () => {
+    return ret;
+}
+
+const KakaoMapArea = ({getDataButtonHandler}) => {
     const [map, setMap] = useState(null);
-    const [center, setCenter] = useState(null);
     const [bound, setBound] = useState(null);
-
+    const [tiles, setTiles] = useState([]);
     //처음 지도 그리기
     useEffect(async () => {
         const container = document.getElementById('map');
@@ -74,18 +66,26 @@ const KakaoMapArea = () => {
             level: 4,
         };
         const kakaoMap = new kakao.maps.Map(container, options);
-        kakaoMap.setMinLevel(3);
-        kakaoMap.setMaxLevel(5);
-        const tileData = await makeTileList({
-            center: [37.4953, 126.4878],
-            gap: 0.002,
-            color: ['#F79F81', '#A9A9F5'],
+        kakao.maps.event.addListener(kakaoMap, 'dragend', () => {
+            const bound = kakaoMap.getBounds();
+            setBound(getBoundInfo({ bound }));
         });
-        tileData.forEach((tile) => {
-            tile.setMap(kakaoMap);
-        });
+
+        const initBound = kakaoMap.getBounds();
+        setBound(getBoundInfo({ bound: initBound }));
         setMap(kakaoMap);
     }, []);
+
+
+
+    const deleteTileHandler = (e)=>{
+        e.preventDefault();
+        tiles.forEach((tile) => {
+            tile.setMap(null);
+            tile = null;
+        });
+        setTiles([]);
+    }
 
     return (
         <div
@@ -97,8 +97,47 @@ const KakaoMapArea = () => {
             }}
         >
             <div id="map" style={{ width: '99%', height: '700px' }}></div>
+            <button
+             style={{ width: '150px', height: '50px', margin: '10px' }}
+             onClick={(e)=>{
+                getDataButtonHandler(e,bound);
+             }}
+             >
+                 데이터 가져오기
+
+            </button>
+
+            <CButton
+                disableStatus={false}
+                value={'지우기'}
+                type={-1}
+                onClickHandler={deleteTileHandler}
+            />            
         </div>
     );
 };
 
 export default KakaoMapArea;
+
+
+// const getDataButtonHandler = async (e) => {
+//     tiles.forEach((tile) => {
+//         tile.setMap(null);
+//         tile = null;
+//     });
+//     e.preventDefault();
+//     console.log(bound);
+//     const newTiles = await makeTileList({
+//         center: [
+//             map.getCenter().getLat(),
+//             map.getCenter().getLng(),
+//         ],
+//         gap: 0.0015,
+//         color: ['#178FAA', '#D47FF1'],
+//         size: 5,
+//     });
+//     newTiles.forEach((tile) => {
+//         tile.setMap(map);
+//     });
+//     setTiles(newTiles);
+// };
