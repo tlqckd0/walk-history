@@ -3,40 +3,54 @@ import React, { useEffect, useState } from 'react';
 import CButton from '../../component/CButton';
 
 const { kakao } = window;
+const gap = 0.001;
 
-function makeTileList({ center, gap, color, size }) {
+function colorLevel({ count, countMax }) {
+    let base = '#FF9999'; //MAX일때 '#FF0000'
 
+    const value = 1 - count / countMax;
+    const R = 'FF';
+    let G = (parseInt('AA', 16) * value).toString(16);
+    let B = (parseInt('AA', 16) * value).toString(16);
+    if (G.length === 1) {
+        G = '0' + G;
+    }
+    if (B.length === 1) {
+        B = '0' + B;
+    }
+    return `#${R}${G}${B}`;
+}
+function makeTileList({ areaData }) {
     return new Promise((resolve, reject) => {
+        //이부분은 나중에 메타데이터 가지고 오는 방향으로 변경하자.
+        let countMax = -1;
+        areaData.forEach((tile) => {
+            countMax = Math.max(countMax, tile.count);
+        });
         const ret = [];
-        let toggle = false;
-        for (let i = -size; i <= size; i++) {
-            for (let j = -size; j <= size; j++) {
-                const sw = new kakao.maps.LatLng(
-                    center[0] + i * gap,
-                    center[1] + j * gap
-                );
-                const ne = new kakao.maps.LatLng(
-                    center[0] + (i + 1) * gap,
-                    center[1] + (j + 1) * gap
-                );
-                const rectangleBounds = new kakao.maps.LatLngBounds(sw, ne);
-                const rect = new kakao.maps.Rectangle({
-                    bounds: rectangleBounds, // 그려질 사각형의 영역정보입니다
-                    strokeWeight: 1, // 선의 두께입니다
-                    strokeColor: '#000000', // 선의 색깔입니다
-                    strokeOpacity: 0, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-                    strokeStyle: 'dashed', // 선의 스타일입니다
-                    fillColor: toggle ? color[0] : color[1], // 채우기 색깔입니다
-                    fillOpacity: 0.5, // 채우기 불투명도 입니다
-                });
-                toggle = !toggle;
-                ret.push(rect);
-            }
-        }
+
+        areaData.forEach((tile) => {
+            const sw = new kakao.maps.LatLng(tile.latitude, tile.longitude);
+            const ne = new kakao.maps.LatLng(
+                tile.latitude + gap,
+                tile.longitude + gap
+            );
+            const rectangleBounds = new kakao.maps.LatLngBounds(sw, ne);
+            const rect = new kakao.maps.Rectangle({
+                bounds: rectangleBounds,
+                strokeWeight: 1, 
+                strokeColor: '#000000', 
+                strokeOpacity: 0, 
+                strokeStyle: 'dashed', 
+                fillColor: colorLevel({ count: tile.count, countMax }), 
+                fillOpacity: 0.5,
+            });
+            ret.push(rect);
+        });
         resolve(ret);
     })
-        .then((data) => {
-            return data;
+        .then((tiles) => {
+            return tiles;
         })
         .catch((err) => {
             console.log(err.message);
@@ -45,16 +59,16 @@ function makeTileList({ center, gap, color, size }) {
 }
 function getBoundInfo({ bound }) {
     const ret = {
-        sw_lat: bound.getSouthWest().La.toFixed(4),
-        sw_lon: bound.getSouthWest().Ma.toFixed(4),
-        ne_lat: bound.getNorthEast().La.toFixed(4),
-        ne_lon: bound.getNorthEast().Ma.toFixed(4),
+        sw_lat: bound.getSouthWest().Ma,
+        sw_lon: bound.getSouthWest().La,
+        ne_lat: bound.getNorthEast().Ma,
+        ne_lon: bound.getNorthEast().La,
     };
 
     return ret;
 }
 
-const KakaoMapArea = ({getDataButtonHandler}) => {
+const KakaoMapArea = ({ getDataButtonHandler, areaData }) => {
     const [map, setMap] = useState(null);
     const [bound, setBound] = useState(null);
     const [tiles, setTiles] = useState([]);
@@ -70,22 +84,36 @@ const KakaoMapArea = ({getDataButtonHandler}) => {
             const bound = kakaoMap.getBounds();
             setBound(getBoundInfo({ bound }));
         });
+        kakaoMap.setMaxLevel(5);
 
         const initBound = kakaoMap.getBounds();
         setBound(getBoundInfo({ bound: initBound }));
         setMap(kakaoMap);
     }, []);
 
-
-
-    const deleteTileHandler = (e)=>{
-        e.preventDefault();
-        tiles.forEach((tile) => {
-            tile.setMap(null);
-            tile = null;
+    const deleteTile = () => {
+        return new Promise((resolve, reject) => {
+            tiles.forEach((tile) => {
+                tile.setMap(null);
+                tile = null;
+            });
+            setTiles([]);
+            resolve(true);
         });
-        setTiles([]);
-    }
+    };
+    useEffect(async () => {
+        await deleteTile();
+        const newTiles = await makeTileList({ areaData });
+        newTiles.forEach((tile) => {
+            tile.setMap(map);
+        });
+        setTiles(newTiles);
+    }, [areaData]);
+
+    const deleteTileHandler = async (e) => {
+        e.preventDefault();
+        await deleteTile();
+    };
 
     return (
         <div
@@ -98,13 +126,12 @@ const KakaoMapArea = ({getDataButtonHandler}) => {
         >
             <div id="map" style={{ width: '99%', height: '700px' }}></div>
             <button
-             style={{ width: '150px', height: '50px', margin: '10px' }}
-             onClick={(e)=>{
-                getDataButtonHandler(e,bound);
-             }}
-             >
-                 데이터 가져오기
-
+                style={{ width: '150px', height: '50px', margin: '10px' }}
+                onClick={(e) => {
+                    getDataButtonHandler(e, bound);
+                }}
+            >
+                데이터 가져오기
             </button>
 
             <CButton
@@ -112,32 +139,10 @@ const KakaoMapArea = ({getDataButtonHandler}) => {
                 value={'지우기'}
                 type={-1}
                 onClickHandler={deleteTileHandler}
-            />            
+            />
         </div>
     );
 };
 
 export default KakaoMapArea;
 
-
-// const getDataButtonHandler = async (e) => {
-//     tiles.forEach((tile) => {
-//         tile.setMap(null);
-//         tile = null;
-//     });
-//     e.preventDefault();
-//     console.log(bound);
-//     const newTiles = await makeTileList({
-//         center: [
-//             map.getCenter().getLat(),
-//             map.getCenter().getLng(),
-//         ],
-//         gap: 0.0015,
-//         color: ['#178FAA', '#D47FF1'],
-//         size: 5,
-//     });
-//     newTiles.forEach((tile) => {
-//         tile.setMap(map);
-//     });
-//     setTiles(newTiles);
-// };

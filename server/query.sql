@@ -25,10 +25,10 @@ DEFAULT CHARACTER SET = utf8;
 CREATE TABLE `walkgps`.`cooord_line` (
   `recordcode` INT NOT NULL,
   `counter` INT NOT NULL,
-  `from_latitude` FLOAT NOT NULL,
-  `from_longitude` FLOAT NOT NULL,
-  `to_latitude` FLOAT NOT NULL,
-  `to_longitude` FLOAT NOT NULL,
+  `from_latitude` DOUBLE NOT NULL,
+  `from_longitude` DOUBLE NOT NULL,
+  `to_latitude` DOUBLE NOT NULL,
+  `to_longitude` DOUBLE NOT NULL,
   `time` VARCHAR(20) NULL,
   PRIMARY KEY (`recordcode`, `counter`),
   CONSTRAINT `recode_fk`
@@ -39,21 +39,17 @@ CREATE TABLE `walkgps`.`cooord_line` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE TABLE `walkgps`.`area` (
-  `areacode` INT NOT NULL AUTO_INCREMENT,
-  `latitude` FLOAT NOT NULL,
-  `longitude` FLOAT NOT NULL,
-  `description` VARCHAR(45) NULL,
-  `size` INT NOT NULL,
-  PRIMARY KEY (`areacode`))
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8;
-
-CREATE TABLE `walkgps`.`userarea` (
-  `areacode` INT NOT NULL,
+CREATE TABLE `walkgps`.`user_area` (
   `usercode` INT NOT NULL,
-  `lat_idx` INT NOT NULL,
-  `counter` VARCHAR(100) NULL,
-  PRIMARY KEY (`areacode`, `lat_idx`, `usercode`))
+  `latitude` DOUBLE NOT NULL,
+  `longitude` DOUBLE NOT NULL,
+  `count` INT NULL DEFAULT 1,
+  PRIMARY KEY (`usercode`, `latitude`, `longitude`),
+  INDEX `lat_lon` (`latitude` ASC, `longitude` ASC) VISIBLE,
+  CONSTRAINT `user_fk`
+    FOREIGN KEY (`usercode`)
+    REFERENCES `walkgps`.`user` (`usercode`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;

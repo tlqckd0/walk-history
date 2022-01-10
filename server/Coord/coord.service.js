@@ -1,18 +1,5 @@
 const { coordRepository } = require('../repository/index');
 
-const CoordStringToJson = ({ coords }) => {
-    return new Promise((resolve, reject) => {
-        const json_coords = coords.map((value) => JSON.parse(value));
-        resolve(json_coords);
-    })
-        .then((res) => {
-            return res;
-        })
-        .catch((err) => {
-            throw err;
-        });
-};
-
 const findCoordList = async({recordcode})=>{
     try{
         const coordsList = await coordRepository.findCoordsWithRecordcode({recordcode});
