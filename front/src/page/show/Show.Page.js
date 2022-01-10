@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import KakaoMap from './Kakao.map.show';
+import KakaoMapShow from './Kakao.map.show';
 import axios from 'axios';
 import MaterialTable from '../../component/MaterialTable';
 
@@ -57,7 +57,7 @@ const ShowPage = () => {
 
     return (
         <div>
-            <KakaoMap coordList={coordList} selectedCoords={selectedCoords} />
+            <KakaoMapShow coordList={coordList} selectedCoords={selectedCoords} />
             <MaterialTable
                 tableName={'USER NAME'}
                 data={userList}

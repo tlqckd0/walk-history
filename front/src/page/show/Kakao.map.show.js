@@ -33,7 +33,7 @@ function toGeo({ coord_line }) {
 }
 
 
-const KakaoMap = ({ coordList, selectedCoords }) => {
+const KakaoMapShow = ({ coordList, selectedCoords }) => {
     const [map, setMap] = useState(null);
     const [polylineList, setPolylineList] = useState([]);
 
@@ -42,7 +42,7 @@ const KakaoMap = ({ coordList, selectedCoords }) => {
         const container = document.getElementById('map');
         const options = {
             level: 4,
-            center: new kakao.maps.LatLng(33.4507, 126.5706),
+            center: new kakao.maps.LatLng(37.495328, 126.4878233),
         };
         const kakaoMap = new kakao.maps.Map(container, options);
         setMap(kakaoMap);
@@ -110,4 +110,4 @@ const KakaoMap = ({ coordList, selectedCoords }) => {
     );
 };
 
-export default KakaoMap;
+export default KakaoMapShow;
