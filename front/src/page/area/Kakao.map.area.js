@@ -6,8 +6,9 @@ const { kakao } = window;
 const gap = 0.001;
 
 function colorLevel({ count, countMax }) {
-    let base = '#FF9999'; //MAX일때 '#FF0000'
-
+    
+    let base = '#FF3333'; //MAX일때 '#FF0000'
+    return base;
     const value = 1 - count / countMax;
     const R = 'FF';
     let G = (parseInt('AA', 16) * value).toString(16);
@@ -25,7 +26,7 @@ function makeTileList({ areaData }) {
         //이부분은 나중에 메타데이터 가지고 오는 방향으로 변경하자.
         let countMax = -1;
         areaData.forEach((tile) => {
-            countMax = Math.max(countMax, tile.count);
+            countMax = Math.max(countMax, tile.count*1);
         });
         const ret = [];
 
@@ -42,7 +43,7 @@ function makeTileList({ areaData }) {
                 strokeColor: '#000000', 
                 strokeOpacity: 0, 
                 strokeStyle: 'dashed', 
-                fillColor: colorLevel({ count: tile.count, countMax }), 
+                fillColor: colorLevel({ count: tile.count*1, countMax }), 
                 fillOpacity: 0.5,
             });
             ret.push(rect);
@@ -57,6 +58,7 @@ function makeTileList({ areaData }) {
             return [];
         });
 }
+
 function getBoundInfo({ bound }) {
     const ret = {
         sw_lat: bound.getSouthWest().Ma,

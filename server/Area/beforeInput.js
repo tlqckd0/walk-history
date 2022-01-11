@@ -1,3 +1,7 @@
+/**
+ * AREA기능개발 이전에 이동데이터 저장용임 
+ */
+
 require('dotenv').config();
 
 const {coordRepository} = require('../repository/index')
@@ -22,5 +26,5 @@ async function main({usercode, recordcode}){
 
 main({
     usercode:1,
-    recordcode:26
+    recordcode:31
 });

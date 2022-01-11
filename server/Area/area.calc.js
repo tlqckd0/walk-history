@@ -56,8 +56,8 @@ function makeLineFunc({ pos1, pos2 }) {
     return { a, b };
 }
 
+//직선(선분X)이 이 지역을 지나가는지 확인(사각형의 4꼭지점 기준)
 function passCheck({ posList, func }) {
-    //4개의 점의 위치가 선을 기준으로 어디에 있는지 확인.
     if (func.a === 'F') {
         //직선이 X축 평행
         const stand = func.b > posList[0].y;
@@ -85,6 +85,7 @@ function passCheck({ posList, func }) {
     return false;
 }
 
+//tile을 tileList변환
 function makeTileToPosList({ tile }) {
     const tileList = new Array(4);
     tileList[0] = { x: null, y: null };
@@ -107,9 +108,57 @@ function makeTileToPosList({ tile }) {
     return tileList;
 }
 
+//해당 선분이(직선X) tile을 지나가는지.
+function rangeCheck({pos,tile}){
+    if (pos[0].y < pos[1].y) {
+        if (pos[0].x < pos[1].x) {
+            //x,y둘다 증가.
+            if (
+                pos[0].y < tile.ne.lat &&
+                pos[1].y > tile.sw.lat &&
+                pos[0].x < tile.ne.lon &&
+                pos[1].x > tile.sw.lon
+            ) {
+                return true;
+            }
+        } else {
+            if (
+                pos[0].y < tile.ne.lat &&
+                pos[1].y > tile.sw.lat &&
+                pos[1].x < tile.ne.lon &&
+                pos[0].x > tile.sw.lon
+            ) {
+                return true;
+            }
+        }
+    } else {
+        if (pos[0].x < pos[1].x) {
+            if (
+                pos[1].y < tile.ne.lat &&
+                pos[0].y > tile.sw.lat &&
+                pos[0].x < tile.ne.lon &&
+                pos[1].x > tile.sw.lon
+            ) {
+                return true;
+            }
+        } else {
+            if (
+                pos[1].y < tile.ne.lat &&
+                pos[0].y > tile.sw.lat &&
+                pos[1].x < tile.ne.lon &&
+                pos[0].x > tile.sw.lon
+            ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 module.exports = {
     makeTile,
     makeLineFunc,
     passCheck,
-    makeTileToPosList
+    makeTileToPosList,
+    rangeCheck
 }

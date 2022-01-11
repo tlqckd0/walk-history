@@ -13,9 +13,10 @@ module.exports = class AreaRepository {
     and a.latitude between ? and ?  
     and a.longitude between ? and ?`;
 
-    #FindAllSQL = `SELECT usercode, latitude, longitude, count  FROM user_area a WHERE  
-    a.latitude between ? and ?   
-    and a.longitude between ? and ?`;
+    #FindAllSQL = `SELECT latitude, longitude, sum(count) as count  FROM user_area WHERE  
+    latitude between ? and ?   
+    and longitude between ? and ? 
+    group by latitude, longitude`;
 
     constructor(pool) {
         this.#pool = pool;
