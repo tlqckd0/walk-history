@@ -7,7 +7,7 @@ const {
 } = require('./area.calc');
 const { areaRepository } = require('../repository/index');
 
-const areaProcess = async ({ usercode, coords }) => {
+const areaProcess = async ({ usercode, coords, recordcode }) => {
     try {
         const length = coords.length;
         const max_coords = { latitude: 0, longitude: 0 };
@@ -36,7 +36,7 @@ const areaProcess = async ({ usercode, coords }) => {
 
         // 2. 좌표 지나가는지 확인
         const mapTile = await makeTile({ max_coords, min_coords });
-        coords.push(coords[0]);//마지막이랑 연결해줘야.
+        coords.push(coords[0]); //마지막이랑 연결해줘야.
         for (let i = 0; i < coords.length - 1; i++) {
             const pos = [
                 {
@@ -52,7 +52,7 @@ const areaProcess = async ({ usercode, coords }) => {
             mapTile.forEach((rowTiles) => {
                 rowTiles.forEach((tile) => {
                     const posList = makeTileToPosList({ tile });
-                    if(rangeCheck({pos,tile}) === true){
+                    if (rangeCheck({ pos, tile }) === true) {
                         if (passCheck({ posList, func })) {
                             tile.visited = true;
                         }
@@ -65,10 +65,11 @@ const areaProcess = async ({ usercode, coords }) => {
         mapTile.forEach((rowTiles) => {
             rowTiles.forEach(async (tile) => {
                 if (tile.visited) {
-                    await areaRepository.FindAndInsertArea({
+                    await areaRepository.InsertArea({
                         usercode,
                         latitude: tile.sw.lat,
                         longitude: tile.sw.lon,
+                        recordcode,
                     });
                 }
             });
@@ -80,14 +81,38 @@ const areaProcess = async ({ usercode, coords }) => {
     }
 };
 
+const findAreaDetail = async ({ username, latitude, longitude }) => {
+    
+    console.log( username, latitude, longitude)
+    try {
+        if (username !== null) {
+            const result = await areaRepository.FindUserAreaDetail({
+                username,
+                latitude,
+                longitude,
+            });
+            console.log(result);
+            return result;
+        } else {
+            const result = await areaRepository.FindAreaDetail({
+                latitude,
+                longitude,
+            });
+            console.log(result);
+            return result;
+        }
+    } catch (err) {
+        throw err;
+    }
+};
 
-const findArea = async({ username, bottom, top, left, right}) =>{
+const findAreaCount = async({ username, bottom, top, left, right}) =>{
     try{
         if(username !== null){
-            const result = await areaRepository.FindAreaByUsername({username, bottom, top, left, right});
+            const result = await areaRepository.FindAreaCountByUserName({username, bottom, top, left, right});
             return result;
         }else{
-            const result = await areaRepository.FindTotalArea({bottom, top, left, right});
+            const result = await areaRepository.FindTotalCountArea({bottom, top, left, right});
             return result;
         }
     }catch(err){
@@ -97,8 +122,8 @@ const findArea = async({ username, bottom, top, left, right}) =>{
 
 }
 
-
 module.exports = {
     areaProcess,
-    findArea
+    findAreaCount,
+    findAreaDetail
 };

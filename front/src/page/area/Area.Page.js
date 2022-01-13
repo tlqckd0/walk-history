@@ -7,8 +7,8 @@ const AreaPage = () => {
     const [selectedUsername, setSelectedUsername] = useState(-1);
     const [userList, setUserList] = useState([]);
     const [selectTotal, setSelectTotal] = useState(false);
-    const [areaData, setAreaData] = useState([]);
-
+    const [areaCount, setAreaCount] = useState([]);
+    const [areaDetail, setAreaDetail] = useState([]);
     useEffect(async () => {
         try {
             const { data } = await axios.get('/api/user');
@@ -25,30 +25,56 @@ const AreaPage = () => {
         setSelectedUsername(username);
     };
 
-    const getDataButtonHandler = async (e, value) => {
+    const getAreaCountButtonHandler = async (e, value) => {
         e.preventDefault();
         try {
-            if(selectedUsername === -1){
-                throw new Error("사용자를 선택하세요");
+            if (selectedUsername === -1) {
+                throw new Error('사용자를 선택하세요');
             }
             if (selectedUsername === 'Total') {
                 setSelectTotal(true);
                 const { data } = await axios.get(
                     `/api/area/${value.sw_lat}/${value.ne_lat}/${value.sw_lon}/${value.ne_lon}`
                 );
-                if(data.success === false){
+                if (data.success === false) {
                     throw new Error('데이터 오류');
                 }
-                setAreaData(data.result);
+                setAreaCount(data.result);
             } else {
                 setSelectTotal(false);
                 const { data } = await axios.get(
                     `/api/area/${selectedUsername}/${value.sw_lat}/${value.ne_lat}/${value.sw_lon}/${value.ne_lon}`
                 );
-                if(data.success === false){
+                if (data.success === false) {
                     throw new Error('데이터 오류');
                 }
-                setAreaData(data.result);
+                setAreaCount(data.result);
+            }
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
+    const getAreaDetailHandler = async (value) => {
+        try {
+            if (selectTotal) {
+                const { data } = await axios.get(
+                    `/api/area/${value.latitude}/${value.longitude}`
+                );
+
+                if (data.success === false) {
+                    throw new Error('데이터 오류');
+                }
+                setAreaDetail(data.result);
+            } else {
+                const { data } = await axios.get(
+                    `/api/area/${selectedUsername}/${value.latitude}/${value.longitude}`
+                );
+
+                if (data.success === false) {
+                    throw new Error('데이터 오류');
+                }
+                setAreaDetail(data.result);
             }
         } catch (err) {
             alert(err.message);
@@ -57,7 +83,12 @@ const AreaPage = () => {
 
     return (
         <div style={{ border: '1px solid grey' }}>
-            <KakaoMapArea getDataButtonHandler={getDataButtonHandler} areaData={areaData} />
+                            <KakaoMapArea
+                    getAreaCountButtonHandler={getAreaCountButtonHandler}
+                    getAreaDetailHandler={getAreaDetailHandler}
+                    areaCount={areaCount}
+                    areaDetail = {areaDetail}
+                />   
             {selectedUsername === -1 ? (
                 <h3>유저 선택</h3>
             ) : (

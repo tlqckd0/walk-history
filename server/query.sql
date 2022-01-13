@@ -39,17 +39,23 @@ CREATE TABLE `walkgps`.`cooord_line` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
 
-CREATE TABLE `walkgps`.`user_area` (
+CREATE TABLE `walkgps`.`area` (
   `usercode` INT NOT NULL,
   `latitude` DOUBLE NOT NULL,
   `longitude` DOUBLE NOT NULL,
-  `count` INT NULL DEFAULT 1,
-  PRIMARY KEY (`usercode`, `latitude`, `longitude`),
+  `recordcode` INT NOT NULL,
+  PRIMARY KEY (`usercode`, `latitude`, `longitude`, `recordcode`),
   INDEX `lat_lon` (`latitude` ASC, `longitude` ASC) VISIBLE,
+  INDEX `record_fk_idx` (`recordcode` ASC) VISIBLE,
   CONSTRAINT `user_fk`
     FOREIGN KEY (`usercode`)
     REFERENCES `walkgps`.`user` (`usercode`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `record_fk`
+    FOREIGN KEY (`recordcode`)
+    REFERENCES `walkgps`.`record` (`recordcode`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
