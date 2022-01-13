@@ -21,10 +21,10 @@ function line_to_coords ({lines}){
 async function main({usercode, recordcode}){
     const lines = await coordRepository.findCoordsWithRecordcode({recordcode});
     const coords = line_to_coords({lines});
-    await areaService.areaProcess({usercode, coords});
+    await areaService.areaProcess({usercode, coords,recordcode});
 }
 
 main({
-    usercode:1,
-    recordcode:31
+    usercode:2,
+    recordcode:32
 });
