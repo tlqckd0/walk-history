@@ -11,7 +11,8 @@ function line_to_coords ({lines}){
     const coords = lines.map(line=>{
         const coord = {
             latitude :line.from_latitude,
-            longitude  : line.from_longitude
+            longitude  : line.from_longitude,
+            time : line.time
         }
         return coord
     })

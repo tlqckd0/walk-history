@@ -112,6 +112,9 @@ const KakaoMapArea = ({
     const [map, setMap] = useState(null);
     const [bound, setBound] = useState(null);
     const [tiles, setTiles] = useState([]);
+    const [startTime, setStartTime] = useState(null);
+    const [endTime, setEndTime] = useState(null);
+
     //처음 지도 그리기
     useEffect(async () => {
         const container = document.getElementById('map');
@@ -166,8 +169,8 @@ const KakaoMapArea = ({
         return (
             <div key={idx}>
                 <span>
-                    {' '}
-                    기록번호 :{value.recordcode}, 이동시간 : {start} ~ {end}
+                    기록번호 :{value.recordcode} & 레코드 시간 : {start} ~ {end}{' '}
+                    & 들린 시간 : {value.time}
                 </span>
             </div>
         );
@@ -187,18 +190,39 @@ const KakaoMapArea = ({
                 <button
                     style={{ width: '150px', height: '50px', margin: '10px' }}
                     onClick={(e) => {
-                        getAreaCountButtonHandler(e, bound);
+                        getAreaCountButtonHandler(e, bound, startTime, endTime);
                     }}
                 >
                     데이터 가져오기
                 </button>
-
                 <CButton
                     disableStatus={false}
                     value={'지우기'}
                     type={-1}
                     onClickHandler={deleteTileHandler}
                 />
+                <div>
+                    <h3>시작시간이 더 뒤면 그냥 다 가지고옴. (선택없으면 00시 ~ 24시 기준)</h3>
+                    <label htmlFor="start">시작 시간 ~ </label>
+                    <label htmlFor="finish">끝 시간 : </label>
+                    <input
+                        type="time"
+                        id="start"
+                        onChange={e=>{
+                            setStartTime(e.target.value);
+                        }}
+                        step={1}
+                    />
+                     ~
+                    <input
+                        type="time"
+                        id="finish"
+                        onChange={e=>{
+                            setEndTime(e.target.value);
+                        }}
+                        step={1}
+                    />
+                </div>
             </div>
             <div>{showAreaDetail}</div>
         </div>

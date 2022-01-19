@@ -1,19 +1,19 @@
 const gap = 0.001;
 
 //타일만들기
-async function makeTile ({max_coords, min_coords}){
+async function makeTile({ max_coords, min_coords }) {
     //4군대 만들어서
-    const tileBound = {top : null, bottom : null, left : null, right : null};
+    const tileBound = { top: null, bottom: null, left: null, right: null };
     tileBound.top = Math.ceil(max_coords.latitude * 1000) / 1000;
     tileBound.bottom = Math.floor(min_coords.latitude * 1000) / 1000;
     tileBound.right = Math.ceil(max_coords.longitude * 1000) / 1000;
     tileBound.left = Math.floor(min_coords.longitude * 1000) / 1000;
     const tiles = [];
-    for(let i=tileBound.bottom ; i < tileBound.top; i += gap){
+    for (let i = tileBound.bottom; i < tileBound.top; i += gap) {
         const temp = [];
-        for(let j=tileBound.left ; j < tileBound.right; j += gap){
+        for (let j = tileBound.left; j < tileBound.right; j += gap) {
             temp.push({
-                visited : false,
+                visited: false,
                 sw: {
                     lat: i.toFixed(3) * 1,
                     lon: j.toFixed(3) * 1,
@@ -22,6 +22,7 @@ async function makeTile ({max_coords, min_coords}){
                     lat: (i + gap).toFixed(3) * 1,
                     lon: (j + gap).toFixed(3) * 1,
                 },
+                time: '',
             });
         }
         tiles.push(temp);
@@ -109,7 +110,7 @@ function makeTileToPosList({ tile }) {
 }
 
 //해당 선분이(직선X) tile을 지나가는지.
-function rangeCheck({pos,tile}){
+function rangeCheck({ pos, tile }) {
     if (pos[0].y < pos[1].y) {
         if (pos[0].x < pos[1].x) {
             //x,y둘다 증가.
@@ -160,5 +161,5 @@ module.exports = {
     makeLineFunc,
     passCheck,
     makeTileToPosList,
-    rangeCheck
-}
+    rangeCheck,
+};

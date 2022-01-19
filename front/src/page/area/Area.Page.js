@@ -25,16 +25,27 @@ const AreaPage = () => {
         setSelectedUsername(username);
     };
 
-    const getAreaCountButtonHandler = async (e, value) => {
+    const getAreaCountButtonHandler = async (e, value, startTime, endTime) => {
         e.preventDefault();
         try {
+            if (startTime === null) {
+                startTime = '00:00:00';
+            }
+            if (endTime === null) {
+                endTime = '24:00:00';
+            }
+            if (startTime > endTime) {
+                startTime = '00:00:00';
+                endTime = '24:00:00';
+            }
+            console.log(startTime, endTime);
             if (selectedUsername === -1) {
                 throw new Error('사용자를 선택하세요');
             }
             if (selectedUsername === 'Total') {
                 setSelectTotal(true);
                 const { data } = await axios.get(
-                    `/api/area/${value.sw_lat}/${value.ne_lat}/${value.sw_lon}/${value.ne_lon}`
+                    `/api/area/${value.sw_lat}/${value.ne_lat}/${value.sw_lon}/${value.ne_lon}/${startTime}/${endTime}`
                 );
                 if (data.success === false) {
                     throw new Error('데이터 오류');
@@ -43,7 +54,7 @@ const AreaPage = () => {
             } else {
                 setSelectTotal(false);
                 const { data } = await axios.get(
-                    `/api/area/${selectedUsername}/${value.sw_lat}/${value.ne_lat}/${value.sw_lon}/${value.ne_lon}`
+                    `/api/area/${selectedUsername}/${value.sw_lat}/${value.ne_lat}/${value.sw_lon}/${value.ne_lon}/${startTime}/${endTime}`
                 );
                 if (data.success === false) {
                     throw new Error('데이터 오류');
@@ -83,12 +94,12 @@ const AreaPage = () => {
 
     return (
         <div style={{ border: '1px solid grey' }}>
-                            <KakaoMapArea
-                    getAreaCountButtonHandler={getAreaCountButtonHandler}
-                    getAreaDetailHandler={getAreaDetailHandler}
-                    areaCount={areaCount}
-                    areaDetail = {areaDetail}
-                />   
+            <KakaoMapArea
+                getAreaCountButtonHandler={getAreaCountButtonHandler}
+                getAreaDetailHandler={getAreaDetailHandler}
+                areaCount={areaCount}
+                areaDetail={areaDetail}
+            />
             {selectedUsername === -1 ? (
                 <h3>유저 선택</h3>
             ) : (
