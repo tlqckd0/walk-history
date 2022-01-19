@@ -72,31 +72,28 @@ const saveRecord = async ({ usercode, record }) => {
 const finishRecording = async ({ usercode, recordcode }) => {
     try {
         //1. 처리 시작
-        console.log('1');
         await userRepository.updateUserStatus({ usercode, status: 2 });
 
         //2. redis에서 데이터 가지고오고 redis는 삭제
-        console.log('2');
         const coords = await getRecord({ usercode });
         await deleteRecord({ usercode });
         const json_coords = await coordStringToJson({ coords });
 
         //3-1. 점 데이터를 선으로 변환해서 저장.
-        console.log('3-1');
         await coordsService.saveCoordsToLine({
             recordcode,
             coords: json_coords,
         });
         //3-2. 저장
-        console.log('3-2');
         await areaService.areaProcess({ usercode, coords: json_coords });
 
-        console.log('4');
         //4. 종료 상태 변경 (기록성공)
         await recordRepository.finishRecord({ recordcode, status: 1 });
         await userRepository.updateUserStatus({ usercode, status: 0 });
         return true;
     } catch (err) {
+        //실패 
+        await finishWithError({usercode, recordcode});
         throw new Error(err.message);
     }
 };

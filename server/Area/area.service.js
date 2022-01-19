@@ -51,10 +51,13 @@ const areaProcess = async ({ usercode, coords, recordcode }) => {
             const func = makeLineFunc({ pos1: pos[0], pos2: pos[1] });
             mapTile.forEach((rowTiles) => {
                 rowTiles.forEach((tile) => {
-                    const posList = makeTileToPosList({ tile });
-                    if (rangeCheck({ pos, tile }) === true) {
-                        if (passCheck({ posList, func })) {
-                            tile.visited = true;
+                    if (tile.visited === false) {
+                        const posList = makeTileToPosList({ tile });
+                        if (rangeCheck({ pos, tile }) === true) {
+                            if (passCheck({ posList, func })) {
+                                tile.visited = true;
+                                tile.time = coords[i].time;
+                            }
                         }
                     }
                 });
@@ -70,6 +73,7 @@ const areaProcess = async ({ usercode, coords, recordcode }) => {
                         latitude: tile.sw.lat,
                         longitude: tile.sw.lon,
                         recordcode,
+                        time: tile.time,
                     });
                 }
             });
@@ -82,8 +86,6 @@ const areaProcess = async ({ usercode, coords, recordcode }) => {
 };
 
 const findAreaDetail = async ({ username, latitude, longitude }) => {
-    
-    console.log( username, latitude, longitude)
     try {
         if (username !== null) {
             const result = await areaRepository.FindUserAreaDetail({
@@ -91,14 +93,12 @@ const findAreaDetail = async ({ username, latitude, longitude }) => {
                 latitude,
                 longitude,
             });
-            console.log(result);
             return result;
         } else {
             const result = await areaRepository.FindAreaDetail({
                 latitude,
                 longitude,
             });
-            console.log(result);
             return result;
         }
     } catch (err) {
@@ -106,24 +106,46 @@ const findAreaDetail = async ({ username, latitude, longitude }) => {
     }
 };
 
-const findAreaCount = async({ username, bottom, top, left, right}) =>{
-    try{
-        if(username !== null){
-            const result = await areaRepository.FindAreaCountByUserName({username, bottom, top, left, right});
+const findAreaCount = async ({
+    username,
+    bottom,
+    top,
+    left,
+    right,
+    startTime,
+    endTime,
+}) => {
+    try {
+        if (username !== null) {
+            const result = await areaRepository.FindAreaCountByUserName({
+                username,
+                bottom,
+                top,
+                left,
+                right,
+                startTime,
+                endTime,
+            });
             return result;
-        }else{
-            const result = await areaRepository.FindTotalCountArea({bottom, top, left, right});
+        } else {
+            const result = await areaRepository.FindTotalCountArea({
+                bottom,
+                top,
+                left,
+                right,
+                startTime,
+                endTime,
+            });
             return result;
         }
-    }catch(err){
+    } catch (err) {
         console.log(err.message);
         throw err;
     }
-
-}
+};
 
 module.exports = {
     areaProcess,
     findAreaCount,
-    findAreaDetail
+    findAreaDetail,
 };
