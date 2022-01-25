@@ -1,7 +1,7 @@
 module.exports = {
     host: 'localhost',
     user: 'root',
-    database: 'walkgps',
+    database: 'walkhistory',
     password: process.env.MYSQL_PASSWORD,
     dateStrings:true,
     waitForConnections: true,
