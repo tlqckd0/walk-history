@@ -1,6 +1,6 @@
 "# walk-history" 
 --
-## React, Express, Redis, Mysql환경
+## React.js, Express, Redis, Mysql환경
 --
 
 ## 1 고쳐야할 기능
