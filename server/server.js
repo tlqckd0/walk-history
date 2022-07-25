@@ -1,11 +1,20 @@
-require('dotenv').config();
+'use strict';
 
-function main() {
+const loaders = require('./loader');
+const express = require('express');
+
+async function startServer() {
     const PORT = process.env.PORT || 8080;
-    const app = require('./app');
-    app.listen(PORT, () => {
-        console.log('app start');
+    const app = express();
+    await loaders({ expressApp: app });
+
+    app.listen(PORT, (err) => {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        console.log(`Server start at ${PORT}`);
     });
 }
 
-main();
+startServer();
